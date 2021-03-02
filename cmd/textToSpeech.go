@@ -21,19 +21,19 @@ import (
 	"github.com/spf13/cobra"
 
 	"context"
-    "io/ioutil"
+	"io/ioutil"
 	"log"
 
-    texttospeech "cloud.google.com/go/texttospeech/apiv1"
-    texttospeechpb "google.golang.org/genproto/googleapis/cloud/texttospeech/v1"
+	texttospeech "cloud.google.com/go/texttospeech/apiv1"
+	texttospeechpb "google.golang.org/genproto/googleapis/cloud/texttospeech/v1"
 )
 
 // textToSpeechCmd represents the textToSpeech command
 var textToSpeechCmd = &cobra.Command{
-	Use:   "textToSpeech",
+	Use:     "textToSpeech",
 	Aliases: []string{"tts"},
-	Short: "Transform text to speech and export result in a mp3 file",
-	Long: `Usage: textToSpeech <text> <lang>`,
+	Short:   "Transform text to speech and export result in a mp3 file",
+	Long:    `Usage: textToSpeech <text> <lang>`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var text = "Hello, World!"
 		var lang = "en-US"
@@ -45,7 +45,7 @@ var textToSpeechCmd = &cobra.Command{
 		if len(args) == 2 && args[1] != "" {
 			lang = args[1]
 		}
-		fmt.Println("textToSpeech called with text =",text,"and lang =",lang)
+		fmt.Println("textToSpeech called with text =", text, "and lang =", lang)
 
 		textToSpeach(text, lang)
 	},
@@ -53,57 +53,49 @@ var textToSpeechCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(textToSpeechCmd)
-	// textToSpeechCmd.Flags().String("text", "", "Text to transform")
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	textToSpeechCmd.PersistentFlags().String("text", "", "Text to transform")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
+	// textToSpeechCmd.PersistentFlags().String("text", "", "Text to transform")
 	// textToSpeechCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
 func textToSpeach(text, lang string) {
-        ctx := context.Background()
+	ctx := context.Background()
 
-        client, err := texttospeech.NewClient(ctx)
-        if err != nil {
-                log.Fatal(err)
-        }
+	client, err := texttospeech.NewClient(ctx)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-        // Perform the text-to-speech request on the text input with the selected
-        // voice parameters and audio file type.
-        req := texttospeechpb.SynthesizeSpeechRequest{
-                // Set the text input to be synthesized.
-                Input: &texttospeechpb.SynthesisInput{
-                        InputSource: &texttospeechpb.SynthesisInput_Text{Text: text},
-                },
-                // Build the voice request, select the language code ("en-US") and the SSML
-                // voice gender ("neutral").
-                Voice: &texttospeechpb.VoiceSelectionParams{
-                        LanguageCode: lang,
-                        SsmlGender:   texttospeechpb.SsmlVoiceGender_NEUTRAL,
-                },
-                // Select the type of audio file you want returned.
-                AudioConfig: &texttospeechpb.AudioConfig{
-                        AudioEncoding: texttospeechpb.AudioEncoding_MP3,
-                },
-        }
+	// Perform the text-to-speech request on the text input with the selected
+	// voice parameters and audio file type.
+	req := texttospeechpb.SynthesizeSpeechRequest{
+		// Set the text input to be synthesized.
+		Input: &texttospeechpb.SynthesisInput{
+			InputSource: &texttospeechpb.SynthesisInput_Text{Text: text},
+		},
+		// Build the voice request, select the language code ("en-US") and the SSML
+		// voice gender ("neutral").
+		Voice: &texttospeechpb.VoiceSelectionParams{
+			LanguageCode: lang,
+			SsmlGender:   texttospeechpb.SsmlVoiceGender_NEUTRAL,
+			// SsmlGender:   texttospeechpb.SsmlVoiceGender_FEMALE
+		},
+		// Select the type of audio file you want returned.
+		AudioConfig: &texttospeechpb.AudioConfig{
+			AudioEncoding: texttospeechpb.AudioEncoding_MP3,
+			SpeakingRate:  1, //increase speed to 2.5
+		},
+	}
 
-        resp, err := client.SynthesizeSpeech(ctx, &req)
-        if err != nil {
-                log.Fatal(err)
-        }
+	resp, err := client.SynthesizeSpeech(ctx, &req)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-        // The resp's AudioContent is binary.
-        filename := "output.mp3"
-        err = ioutil.WriteFile(filename, resp.AudioContent, 0644)
-        if err != nil {
-                log.Fatal(err)
-        }
-        fmt.Printf("Audio content written to file: %v\n", filename)
+	// The resp's AudioContent is binary.
+	filename := "output.mp3"
+	err = ioutil.WriteFile(filename, resp.AudioContent, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Audio content written to file: %v\n", filename)
 }
-
