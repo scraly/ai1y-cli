@@ -12,12 +12,14 @@ $ ai1y-cli textToSpeech salut fr-FR
 ```
 $ go run main.go
 
+AI1Y app allow to call text-to-speech API that transform text to speech
+
 Usage:
   ai1y-cli [command]
 
 Available Commands:
   help         Help about any command
-  textToSpeech A brief description of your command
+  textToSpeech Transform text to speech and export result in a mp3 file
 
 Flags:
       --config string   config file (default is $HOME/.ai1y-cli.yaml)
@@ -42,5 +44,5 @@ Audio content written to file: output.mp3
 ## Build program
 
 ```
-$ go build -o bin/text-to-speach main.go
-````
+$ go build -o bin/ai1y-cli main.go
+```
